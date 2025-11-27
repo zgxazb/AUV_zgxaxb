@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <!-- 背景 -->
+  <rect width="1200" height="900" fill="#f8f9fa" rx="10" ry="10"/>
+  
+  <!-- 标题 -->
+  <text x="600" y="40" font-family="Arial" font-size="24" text-anchor="middle" font-weight="bold" fill="#333">AUV推进器-流体-控制关系详细流程图</text>
+  
+  <!-- 模块1: 控制输入模块 -->
+  <rect x="100" y="100" width="200" height="150" rx="8" ry="8" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="200" y="130" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" fill="#1976d2">控制输入模块</text>
+  <text x="200" y="160" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">键盘输入</text>
+  <text x="200" y="185" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">目标深度</text>
+  <text x="200" y="210" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">目标航向</text>
+  <text x="200" y="235" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">目标姿态角</text>
+  
+  <!-- 模块2: PID控制模块 -->
+  <rect x="450" y="100" width="300" height="300" rx="8" ry="8" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/>
+  <text x="600" y="130" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" fill="#388e3c">PID控制模块</text>
+  
+  <!-- PID子模块 -->
+  <rect x="480" y="160" width="80" height="50" rx="5" ry="5" fill="#c8e6c9" stroke="#388e3c" stroke-width="1"/>
+  <text x="520" y="190" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">深度PID</text>
+  
+  <rect x="580" y="160" width="80" height="50" rx="5" ry="5" fill="#c8e6c9" stroke="#388e3c" stroke-width="1"/>
+  <text x="620" y="190" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">航向PID</text>
+  
+  <rect x="480" y="230" width="80" height="50" rx="5" ry="5" fill="#c8e6c9" stroke="#388e3c" stroke-width="1"/>
+  <text x="520" y="260" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">俯仰PID</text>
+  
+  <rect x="580" y="230" width="80" height="50" rx="5" ry="5" fill="#c8e6c9" stroke="#388e3c" stroke-width="1"/>
+  <text x="620" y="260" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">横滚PID</text>
+  
+  <rect x="530" y="300" width="140" height="50" rx="5" ry="5" fill="#a5d6a7" stroke="#388e3c" stroke-width="1"/>
+  <text x="600" y="330" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">控制量计算与合并</text>
+  
+  <!-- 模块3: 控制输出模块 -->
+  <rect x="100" y="350" width="200" height="150" rx="8" ry="8" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+  <text x="200" y="380" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" fill="#f57c00">控制输出模块</text>
+  <text x="200" y="410" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">推进器推力</text>
+  <text x="200" y="435" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">舵机角度控制</text>
+  <text x="200" y="460" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">舵角范围限制</text>
+  <text x="200" y="485" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">控制指令发送</text>
+  
+  <!-- 模块4: AUV动力学模型模块 -->
+  <rect x="450" y="500" width="300" height="200" rx="8" ry="8" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="600" y="530" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" fill="#7b1fa2">AUV动力学模型</text>
+  <text x="600" y="560" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">质量与惯性矩阵</text>
+  <text x="600" y="585" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">推进器位置</text>
+  <text x="600" y="610" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">舵机位置与效率</text>
+  <text x="600" y="635" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">牛顿-欧拉方程</text>
+  <text x="600" y="660" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">状态更新计算</text>
+  
+  <!-- 模块5: 流体力学模块 -->
+  <rect x="850" y="100" width="250" height="200" rx="8" ry="8" fill="#e0f7fa" stroke="#00838f" stroke-width="2"/>
+  <text x="975" y="130" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" fill="#00838f">流体力学模块</text>
+  <text x="975" y="160" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">线性阻力计算</text>
+  <text x="975" y="185" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">F = -drag_coefficient * velocity</text>
+  <text x="975" y="210" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">角阻力计算</text>
+  <text x="975" y="235" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">T = -angular_drag * angular_velocity</text>
+  <text x="975" y="260" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">舵机流体动力计算</text>
+  <text x="975" y="285" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">F_rudder = effectiveness * angle</text>
+  
+  <!-- 模块6: 运动状态模块 -->
+  <rect x="850" y="400" width="250" height="250" rx="8" ry="8" fill="#fffde7" stroke="#fbc02d" stroke-width="2"/>
+  <text x="975" y="430" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" fill="#fbc02d">运动状态模块</text>
+  <text x="890" y="460" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">位置状态</text>
+  <text x="890" y="485" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">姿态角度</text>
+  <text x="890" y="510" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">线速度</text>
+  <text x="890" y="535" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">角速度</text>
+  
+  <rect x="880" y="450" width="40" height="40" rx="5" ry="5" fill="#fff9c4" stroke="#fbc02d" stroke-width="1"/>
+  <rect x="880" y="480" width="40" height="40" rx="5" ry="5" fill="#fff9c4" stroke="#fbc02d" stroke-width="1"/>
+  <rect x="880" y="510" width="40" height="40" rx="5" ry="5" fill="#fff9c4" stroke="#fbc02d" stroke-width="1"/>
+  <rect x="880" y="540" width="40" height="40" rx="5" ry="5" fill="#fff9c4" stroke="#fbc02d" stroke-width="1"/>
+  
+  <text x="1060" y="460" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">x, y, z</text>
+  <text x="1060" y="485" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">phi, theta, psi</text>
+  <text x="1060" y="510" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">u, v, w</text>
+  <text x="1060" y="535" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">p, q, r</text>
+  
+  <text x="975" y="580" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">状态更新</text>
+  <text x="975" y="605" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">角度规范化</text>
+  
+  <!-- 连接线 -->
+  <!-- 控制输入 -> PID控制 -->
+  <line x1="300" y1="150" x2="450" y2="150" stroke="#1976d2" stroke-width="2"/>
+  <polygon points="450,150 440,145 440,155" fill="#1976d2"/>
+  
+  <!-- PID控制 -> 控制输出 -->
+  <line x1="600" y1="400" x2="600" y2="425" stroke="#388e3c" stroke-width="2"/>
+  <line x1="600" y1="425" x2="300" y2="425" stroke="#388e3c" stroke-width="2"/>
+  <polygon points="300,425 310,420 310,430" fill="#388e3c"/>
+  
+  <!-- 控制输出 -> AUV动力学模型 -->
+  <line x1="200" y1="500" x2="200" y2="550" stroke="#f57c00" stroke-width="2"/>
+  <line x1="200" y1="550" x2="450" y2="550" stroke="#f57c00" stroke-width="2"/>
+  <polygon points="450,550 440,545 440,555" fill="#f57c00"/>
+  
+  <!-- AUV动力学模型 -> 运动状态 -->
+  <line x1="750" y1="600" x2="850" y2="600" stroke="#7b1fa2" stroke-width="2"/>
+  <polygon points="850,600 840,595 840,605" fill="#7b1fa2"/>
+  
+  <!-- 运动状态 -> PID控制 (反馈) -->
+  <line x1="975" y1="650" x2="975" y2="700" stroke="#fbc02d" stroke-width="2" stroke-dasharray="5,5"/>
+  <line x1="975" y1="700" x2="600" y2="700" stroke="#fbc02d" stroke-width="2" stroke-dasharray="5,5"/>
+  <line x1="600" y1="700" x2="600" y2="400" stroke="#fbc02d" stroke-width="2" stroke-dasharray="5,5"/>
+  <polygon points="600,400 595,410 605,410" fill="#fbc02d"/>
+  
+  <!-- 运动状态 -> 流体力学 (速度输入) -->
+  <line x1="975" y1="400" x2="975" y2="300" stroke="#fbc02d" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <polygon points="975,300 970,310 980,310" fill="#fbc02d"/>
+  
+  <!-- 流体力学 -> AUV动力学模型 (阻力输入) -->
+  <line x1="850" y1="200" x2="750" y2="200" stroke="#00838f" stroke-width="2"/>
+  <line x1="750" y1="200" x2="750" y2="550" stroke="#00838f" stroke-width="2"/>
+  <polygon points="750,550 745,540 755,540" fill="#00838f"/>
+  
+  <!-- 舵机角度 -> 流体力学 -->
+  <line x1="200" y1="425" x2="200" y2="175" stroke="#f57c00" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <line x1="200" y1="175" x2="850" y2="175" stroke="#f57c00" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <polygon points="850,175 840,170 840,180" fill="#f57c00"/>
+  
+  <!-- 推力 -> AUV动力学模型 (直接连接) -->
+  <line x1="200" y1="410" x2="200" y2="530" stroke="#f57c00" stroke-width="1.5"/>
+  <line x1="200" y1="530" x2="480" y2="530" stroke="#f57c00" stroke-width="1.5"/>
+  <polygon points="480,530 470,525 470,535" fill="#f57c00"/>
+  
+  <!-- 说明文本 -->
+  <text x="600" y="750" font-family="Arial" font-size="16" text-anchor="middle" font-style="italic" fill="#666">实线: 主要控制流 | 虚线: 反馈和辅助关系</text>
+  
+  <!-- 关键关系说明 -->
+  <rect x="150" y="780" width="900" height="80" rx="5" ry="5" fill="#fafafa" stroke="#ddd" stroke-width="1"/>
+  <text x="600" y="805" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold" fill="#333">关键关系说明</text>
+  <text x="250" y="825" font-family="Arial" font-size="12" text-anchor="middle" fill="#555">1. PID控制根据误差计算控制量，影响推进器和舵角</text>
+  <text x="600" y="825" font-family="Arial" font-size="12" text-anchor="middle" fill="#555">2. 推进器产生推力控制前进后退，舵角控制方向姿态</text>
+  <text x="950" y="825" font-family="Arial" font-size="12" text-anchor="middle" fill="#555">3. 流体阻力与速度成正比，影响AUV运动状态</text>
+  <text x="600" y="845" font-family="Arial" font-size="12" text-anchor="middle" fill="#555">4. 舵角通过流体动力产生力和力矩，改变AUV姿态和方向</text>
+</svg>
