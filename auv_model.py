@@ -214,8 +214,19 @@ class AUVModel:
         return self.state[9:12]
     
     def set_velocity(self, velocity):
-        """设置AUV速度[u, v, w, p, q, r]（线速度和角速度）"""
-        self.state[6:12] = velocity
+        """设置AUV速度[u, v, w, p, q, r]（线速度和角速度）
+        
+        参数:
+        velocity: 长度为3（只设置线速度）或6（设置线速度和角速度）的数组
+        """
+        if len(velocity) == 3:
+            # 只设置线速度，保持角速度不变
+            self.state[6:9] = velocity
+        elif len(velocity) == 6:
+            # 设置完整的速度向量
+            self.state[6:12] = velocity
+        else:
+            raise ValueError(f"速度数组长度必须为3或6，当前为{len(velocity)}")
     
     def reset(self):
         """重置AUV状态"""

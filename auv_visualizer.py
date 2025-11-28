@@ -95,10 +95,10 @@ class AUVVisualizer(QOpenGLWidget):
             ('俯仰角:', 'pitch'),
             ('横滚角:', 'roll'),
             ('推力:', 'thrust'),
-            ('舵角1 (右上, z轴):', 'rudder1'),
-            ('舵角2 (右下, z轴):', 'rudder2'),
-            ('舵角3 (左上, y轴):', 'rudder3'),
-            ('舵角4 (左下, y轴):', 'rudder4'),
+            ('舵角1 (上垂直, z轴):', 'rudder1'),
+            ('舵角2 (右水平, x轴):', 'rudder2'),
+            ('舵角3 (下垂直, z轴):', 'rudder3'),
+            ('舵角4 (左水平, x轴):', 'rudder4'),
             ('速度:', 'velocity')
         ]
         
@@ -116,8 +116,8 @@ class AUVVisualizer(QOpenGLWidget):
         # 添加舵角说明和控制提示
         info_text = "舵角说明:\n" \
                    "- 舵角基于AUV主体坐标系\n" \
-                   "- 右上/右下舵: 绕z轴旋转\n" \
-                   "- 左上/左下舵: 绕y轴旋转\n" \
+                   "- 上/下垂直舵: 绕z轴旋转\n" \
+                   "- 左/右水平舵: 绕x轴旋转\n" \
                    "- 角度单位: 度 (°)\n\n" \
                    "控制键位:\n" \
                    "W:前进 S:后退\n" \
@@ -641,7 +641,7 @@ class AUVVisualizer(QOpenGLWidget):
             }
             
             # 检查Shift键组合（用于舵板向下控制）
-            if event.modifiers() == Qt.ShiftModifier:
+            if event.modifiers() & Qt.ShiftModifier:
                 if key == Qt.Key_1:
                     self.auv_controller.set_key_state('!', True)
                     return
@@ -659,7 +659,6 @@ class AUVVisualizer(QOpenGLWidget):
                 self.auv_controller.set_key_state(key_map[key], True)
         
         # 调用父类方法以确保Qt事件处理链完整
-        super().keyReleaseEvent(event)
         super().keyPressEvent(event)
     
     def keyReleaseEvent(self, event):
@@ -680,30 +679,27 @@ class AUVVisualizer(QOpenGLWidget):
                 Qt.Key_Right: 'right',
                 Qt.Key_Q: 'q',
                 Qt.Key_E: 'e',
-                # 独立舵板控制按键
+                # 独立舵板控制按键（向上）
                 Qt.Key_1: '1',
                 Qt.Key_2: '2',
                 Qt.Key_3: '3',
                 Qt.Key_4: '4'
             }
             
-            # 检查Shift键组合（用于舵板向下控制）
-            if event.modifiers() == Qt.ShiftModifier:
-                if key == Qt.Key_1:
-                    self.auv_controller.set_key_state('!', False)
-                    return
-                elif key == Qt.Key_2:
-                    self.auv_controller.set_key_state('@', False)
-                    return
-                elif key == Qt.Key_3:
-                    self.auv_controller.set_key_state('#', False)
-                    return
-                elif key == Qt.Key_4:
-                    self.auv_controller.set_key_state('$', False)
-                    return
-            
+            # 处理普通按键释放
             if key in key_map:
                 self.auv_controller.set_key_state(key_map[key], False)
+            
+            # 特殊处理Shift+1-4键释放（直接检查键码，不依赖modifiers）
+            # 当释放1-4键时，同时释放对应的向下控制键
+            if key == Qt.Key_1:
+                self.auv_controller.set_key_state('!', False)  # Shift+1
+            elif key == Qt.Key_2:
+                self.auv_controller.set_key_state('@', False)  # Shift+2
+            elif key == Qt.Key_3:
+                self.auv_controller.set_key_state('#', False)  # Shift+3
+            elif key == Qt.Key_4:
+                self.auv_controller.set_key_state('$', False)  # Shift+4
         
         # 调用父类方法以确保Qt事件处理链完整
         super().keyReleaseEvent(event)
