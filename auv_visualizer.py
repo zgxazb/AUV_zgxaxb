@@ -690,16 +690,23 @@ class AUVVisualizer(QOpenGLWidget):
             if key in key_map:
                 self.auv_controller.set_key_state(key_map[key], False)
             
-            # 特殊处理Shift+1-4键释放（直接检查键码，不依赖modifiers）
-            # 当释放1-4键时，同时释放对应的向下控制键
-            if key == Qt.Key_1:
+            # 特殊处理Shift+1-4键释放
+            # 只有当释放的是Shift键本身时，才释放所有对应的向下控制键
+            if key == Qt.Key_Shift:
                 self.auv_controller.set_key_state('!', False)  # Shift+1
-            elif key == Qt.Key_2:
                 self.auv_controller.set_key_state('@', False)  # Shift+2
-            elif key == Qt.Key_3:
                 self.auv_controller.set_key_state('#', False)  # Shift+3
-            elif key == Qt.Key_4:
                 self.auv_controller.set_key_state('$', False)  # Shift+4
+            # 当释放1-4键且没有按住Shift键时，释放对应的向下控制键
+            elif key in [Qt.Key_1, Qt.Key_2, Qt.Key_3, Qt.Key_4] and not (event.modifiers() & Qt.ShiftModifier):
+                if key == Qt.Key_1:
+                    self.auv_controller.set_key_state('!', False)  # Shift+1
+                elif key == Qt.Key_2:
+                    self.auv_controller.set_key_state('@', False)  # Shift+2
+                elif key == Qt.Key_3:
+                    self.auv_controller.set_key_state('#', False)  # Shift+3
+                elif key == Qt.Key_4:
+                    self.auv_controller.set_key_state('$', False)  # Shift+4
         
         # 调用父类方法以确保Qt事件处理链完整
         super().keyReleaseEvent(event)
