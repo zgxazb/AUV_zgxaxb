@@ -141,13 +141,15 @@ class AUVController:
             
             # 设置舵角
             # 垂直舵（舵板0和2）控制转向
-            # 水平舵（舵板1和3）控制俯仰
+            # 水平舵（舵板1和3）控制俯仰和横滚
             # 左转向：上垂直舵向左偏，下垂直舵向右偏
             # 右转向：上垂直舵向右偏，下垂直舵向左偏
+            # 左横滚：右水平舵上偏，左水平舵下偏
+            # 右横滚：右水平舵下偏，左水平舵上偏
             self.rudder_angles[0] = turn_angle                # 上垂直舵 - 控制转向
-            self.rudder_angles[1] = pitch_angle               # 右水平舵 - 控制俯仰
+            self.rudder_angles[1] = pitch_angle + roll_angle  # 右水平舵 - 控制俯仰和横滚
             self.rudder_angles[2] = -turn_angle               # 下垂直舵 - 控制转向
-            self.rudder_angles[3] = pitch_angle               # 左水平舵 - 控制俯仰
+            self.rudder_angles[3] = pitch_angle - roll_angle  # 左水平舵 - 控制俯仰和横滚
         
         # 限制舵角范围
         for i in range(4):
