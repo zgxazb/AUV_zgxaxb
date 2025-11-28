@@ -67,6 +67,14 @@ class AUVVisualizer(QOpenGLWidget):
         # 状态显示标签
         self.status_labels = {}
         self.setup_status_panel()
+        
+    def reset_view(self):
+        """重置3D视角到初始状态"""
+        self.camera_distance = 20.0
+        self.camera_azimuth = 45.0
+        self.camera_elevation = 30.0
+        self.camera_target = [0.0, 0.0, -5.0]
+        self.update()  # 触发重绘
     
     def set_auv_model(self, model):
         """设置AUV模型"""
@@ -116,21 +124,35 @@ class AUVVisualizer(QOpenGLWidget):
         # 添加舵角说明和控制提示
         info_text = "舵角说明:\n" \
                    "- 舵角基于AUV主体坐标系\n" \
-                   "- 上/下垂直舵: 绕z轴旋转\n" \
-                   "- 左/右水平舵: 绕x轴旋转\n" \
+                   "- 垂直舵: 绕z轴旋转 (控制左右转向)\n" \
+                   "- 水平舵: 绕x轴旋转 (控制上下俯仰)\n" \
                    "- 角度单位: 度 (°)\n\n" \
+                   "舵板位置、颜色和功能:\n" \
+                   "- 上垂直舵 (红色): 绕z轴旋转，控制转向\n" \
+                   "- 右水平舵 (绿色): 绕x轴旋转，控制俯仰\n" \
+                   "- 下垂直舵 (蓝色): 绕z轴旋转，控制转向\n" \
+                   "- 左水平舵 (黄色): 绕x轴旋转，控制俯仰\n\n" \
+                   "转向控制策略:\n" \
+                   "- 左转向: 红色舵板向左偏，蓝色舵板向右偏\n" \
+                   "- 右转向: 红色舵板向右偏，蓝色舵板向左偏\n\n" \
                    "控制键位:\n" \
                    "W:前进 S:后退\n" \
                    "A:左转 D:右转\n" \
-                   "方向键:俯仰和横滚\n" \
+                   "↑↓:俯仰控制 →←:横滚控制\n" \
                    "Q:上浮 E:下潜\n\n" \
-                   "舵板控制:\n" \
-                   "1-4键: 舵板向上\n" \
-                   "Shift+1-4: 舵板向下\n\n" \
+                   "独立舵板控制:\n" \
+                   "1键: 红色舵板 (上垂直)\n" \
+                   "2键: 绿色舵板 (右水平)\n" \
+                   "3键: 蓝色舵板 (下垂直)\n" \
+                   "4键: 黄色舵板 (左水平)\n" \
+                   "Shift+1-4: 舵板反向控制\n\n" \
                    "鼠标操作:\n" \
                    "左键拖动: 旋转视角\n" \
                    "右键拖动: 平移视角\n" \
-                   "滚轮: 缩放视角"
+                   "滚轮: 缩放视角\n\n" \
+                   "视角控制:\n" \
+                   "R键: 复位视角到初始位置\n" \
+                   "复位视角按钮: 复位3D视角"
         controls_label = QLabel(info_text)
         controls_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.status_layout.addWidget(controls_label, len(status_items), 0, 1, 2)
@@ -312,10 +334,13 @@ class AUVVisualizer(QOpenGLWidget):
         self.draw_cone(body_radius, self.auv_length * 0.2)  # 较短的锥形
         glPopMatrix()
         
-        # 3. 绘制舵机（在正确的位置）
+        # 3. 绘制三维坐标系
+        self.draw_axes()
+        
+        # 4. 绘制舵机（在正确的位置）
         self.draw_rudders(rudder_angles)
         
-        # 4. 绘制推进器（在正确的位置）
+        # 5. 绘制推进器（在正确的位置）
         self.draw_propeller()
         
         # 如果启用推力矢量显示，且有推力，绘制推力矢量
@@ -325,6 +350,81 @@ class AUVVisualizer(QOpenGLWidget):
         # 恢复矩阵
         glPopMatrix()
     
+    def draw_small_axes(self, rotation_axis):
+        """在旋转轴位置绘制小的三维坐标系，大小为0.3m，X方向与旋转轴对齐
+        
+        Args:
+            rotation_axis: 旋转轴方向向量 (x, y, z)
+        """
+        # 保存当前矩阵状态
+        glPushMatrix()
+        
+        # 坐标轴长度
+        axis_length = 0.3
+        arrow_length = 0.05  # 箭头长度
+        arrow_width = 0.02   # 箭头宽度
+        
+        # 将X轴与旋转轴对齐
+        # 计算从X轴到旋转轴的旋转矩阵
+        x_axis = (1.0, 0.0, 0.0)
+        
+        # 如果旋转轴不是X轴，则计算旋转
+        if np.array_equal(rotation_axis, x_axis) is False:
+            # 计算旋转轴和角度
+            rot_axis = np.cross(x_axis, rotation_axis)
+            rot_angle = np.arccos(np.dot(x_axis, rotation_axis) / 
+                                (np.linalg.norm(x_axis) * np.linalg.norm(rotation_axis)))
+            
+            # 应用旋转
+            if np.linalg.norm(rot_axis) > 0.001:  # 避免除以零
+                rot_axis = rot_axis / np.linalg.norm(rot_axis)
+                glRotatef(np.degrees(rot_angle), rot_axis[0], rot_axis[1], rot_axis[2])
+        
+        # 绘制X轴 - 红色 (旋转轴方向)
+        glColor3f(1.0, 0.0, 0.0)
+        glBegin(GL_LINES)
+        glVertex3f(0.0, 0.0, 0.0)
+        glVertex3f(axis_length, 0.0, 0.0)
+        glEnd()
+        
+        # X轴箭头
+        glBegin(GL_TRIANGLES)
+        glVertex3f(axis_length, 0.0, 0.0)                          # 箭头顶点
+        glVertex3f(axis_length - arrow_length, arrow_width, 0.0)    # 箭头尾部点1
+        glVertex3f(axis_length - arrow_length, -arrow_width, 0.0)   # 箭头尾部点2
+        glEnd()
+        
+        # 绘制Y轴 - 绿色
+        glColor3f(0.0, 1.0, 0.0)
+        glBegin(GL_LINES)
+        glVertex3f(0.0, 0.0, 0.0)
+        glVertex3f(0.0, axis_length, 0.0)
+        glEnd()
+        
+        # Y轴箭头
+        glBegin(GL_TRIANGLES)
+        glVertex3f(0.0, axis_length, 0.0)                          # 箭头顶点
+        glVertex3f(arrow_width, axis_length - arrow_length, 0.0)    # 箭头尾部点1
+        glVertex3f(-arrow_width, axis_length - arrow_length, 0.0)   # 箭头尾部点2
+        glEnd()
+        
+        # 绘制Z轴 - 蓝色
+        glColor3f(0.0, 0.0, 1.0)
+        glBegin(GL_LINES)
+        glVertex3f(0.0, 0.0, 0.0)
+        glVertex3f(0.0, 0.0, axis_length)
+        glEnd()
+        
+        # Z轴箭头
+        glBegin(GL_TRIANGLES)
+        glVertex3f(0.0, 0.0, axis_length)                          # 箭头顶点
+        glVertex3f(arrow_width, 0.0, axis_length - arrow_length)    # 箭头尾部点1
+        glVertex3f(-arrow_width, 0.0, axis_length - arrow_length)   # 箭头尾部点2
+        glEnd()
+        
+        # 恢复矩阵状态
+        glPopMatrix()
+        
     def draw_cylinder(self, length, radius):
         """绘制真正的圆柱体（使用三角形带）"""
         # 主体颜色 - 军用灰色鱼雷颜色
@@ -400,23 +500,29 @@ class AUVVisualizer(QOpenGLWidget):
             (self.auv_length/2, -radius * 1.2, 0)      # 左水平舵
         ]
         
-        # 舵机颜色 - 稍微亮一点的灰色
-        glColor3f(0.3, 0.3, 0.35)
+        # 四个舵机使用不同颜色以便区分
+        rudder_colors = [
+            (1.0, 0.0, 0.0),   # 舵板1 - 红色
+            (0.0, 1.0, 0.0),   # 舵板2 - 绿色
+            (0.0, 0.0, 1.0),   # 舵板3 - 蓝色
+            (1.0, 1.0, 0.0)    # 舵板4 - 黄色
+        ]
         
         # 旋转轴定义 - 相对于AUV本地坐标系的旋转轴
         # 由于draw_auv方法中已经应用了AUV的姿态变换，这里使用的坐标系已经是AUV的本地坐标系
+        # 注意：垂直舵(0和2)在应用初始旋转后，旋转轴会改变
         rotation_axes = [
-            (0.0, 0.0, 1.0),  # 上垂直舵 - 围绕AUV本地z轴旋转(控制方向/偏航)
-            (1.0, 0.0, 0.0),  # 右水平舵 - 围绕AUV本地x轴旋转(控制俯仰)
-            (0.0, 0.0, 1.0),  # 下垂直舵 - 围绕AUV本地z轴旋转(控制方向/偏航)
-            (1.0, 0.0, 0.0)   # 左水平舵 - 围绕AUV本地x轴旋转(控制俯仰)
+            (0.0, 0.0, 1.0),  # 上垂直舵 - 初始旋转前围绕AUV本地z轴旋转
+            (0.0, 1.0, 0.0),  # 右水平舵 - 围绕AUV本地y轴旋转
+            (0.0, 0.0, 1.0),  # 下垂直舵 - 初始旋转前围绕AUV本地z轴旋转
+            (0.0, 1.0, 0.0)   # 左水平舵 - 围绕AUV本地y轴旋转
         ]
         
         # 舵机初始方向旋转 - 确保舵板在AUV坐标系中正确定向
         initial_rotations = [
-            (0, 0, 0),     # 上垂直舵 - 不需要额外旋转
+            (90, 0, 0),    # 上垂直舵 - 绕X轴旋转90度，使短边平行于Z轴
             (0, 0, 0),     # 右水平舵 - 不需要额外旋转
-            (0, 0, 0),     # 下垂直舵 - 不需要额外旋转
+            (90, 0, 0),    # 下垂直舵 - 绕X轴旋转90度，使短边平行于Z轴
             (0, 0, 0)      # 左水平舵 - 不需要额外旋转
         ]
         
@@ -425,9 +531,19 @@ class AUVVisualizer(QOpenGLWidget):
             angle = angles[i]
             rot_x, rot_y, rot_z = initial_rotations[i]
             
+            # 设置当前舵板的颜色
+            glColor3f(*rudder_colors[i])
+            
             glPushMatrix()
             # 移动到舵板位置
             glTranslatef(x, y, z)
+            
+            # 绘制舵板坐标系 - 大小0.3m，X方向为旋转轴方向
+            # 对于垂直舵，使用Y轴作为旋转轴
+            if i == 0 or i == 2:  # 上下垂直舵
+                self.draw_small_axes((0, 1, 0))  # 使用Y轴作为旋转轴
+            else:  # 左右水平舵
+                self.draw_small_axes(rotation_axes[i])
             
             # 初始旋转 - 确保舵板在AUV坐标系中正确定向
             if rot_x != 0:
@@ -440,13 +556,19 @@ class AUVVisualizer(QOpenGLWidget):
             # 应用舵角旋转 - 使用对应的旋转轴
             # 注意：由于draw_auv方法中已经应用了AUV的姿态变换，
             # 这里的旋转轴是相对于AUV本地坐标系的
-            axis_x, axis_y, axis_z = rotation_axes[i]
             
-            # 根据舵板类型调整旋转方向，确保舵角与AUV姿态一致
-            if i == 0 or i == 2:  # 上下垂直舵（z轴旋转）
-                # 垂直舵：正向旋转为向左转，负向为向右转
-                glRotatef(np.degrees(angle), axis_x, axis_y, axis_z)
-            else:  # 左右水平舵（x轴旋转）
+            # 对于垂直舵，初始旋转改变了局部坐标系，所以需要使用新的旋转轴
+            if i == 0 or i == 2:  # 上下垂直舵
+                # 垂直舵在绕X轴旋转90度后，旋转轴变为Y轴(0, 1, 0)
+                # 上垂直舵(0)：正转向角向左转，负转向角向右转
+                # 下垂直舵(2)：正转向角向右转，负转向角向左转
+                if i == 0:  # 上垂直舵
+                    glRotatef(np.degrees(angle), 0, 1, 0)  # 使用新的旋转轴Y轴
+                else:  # 下垂直舵
+                    glRotatef(np.degrees(-angle), 0, 1, 0)  # 使用新的旋转轴Y轴
+            else:  # 左右水平舵
+                # 水平舵保持原旋转轴
+                axis_x, axis_y, axis_z = rotation_axes[i]
                 # 水平舵：正向旋转为向上，负向为向下
                 glRotatef(np.degrees(angle), axis_x, axis_y, axis_z)
             
@@ -617,6 +739,11 @@ class AUVVisualizer(QOpenGLWidget):
     
     def keyPressEvent(self, event):
         """处理键盘按下事件"""
+        # 检查视角重置快捷键
+        if event.key() == Qt.Key_R:
+            self.reset_view()
+            return
+            
         if self.auv_controller:
             key = event.key()
             
@@ -788,6 +915,12 @@ class AUVMainWindow(QMainWindow):
         self.reset_button.setStyleSheet("QPushButton { padding: 10px; font-size: 14px; background-color: #4CAF50; color: white; border-radius: 4px; } QPushButton:hover { background-color: #45a049; }")
         self.reset_button.clicked.connect(self.handle_reset)
         control_layout.addWidget(self.reset_button)
+        
+        # 添加视角复位按钮
+        self.reset_view_button = QPushButton("复位视角")
+        self.reset_view_button.setStyleSheet("QPushButton { padding: 10px; font-size: 14px; background-color: #2196F3; color: white; border-radius: 4px; } QPushButton:hover { background-color: #1976D2; }")
+        self.reset_view_button.clicked.connect(self.visualizer.reset_view)
+        control_layout.addWidget(self.reset_view_button)
         
         # 添加到布局
         main_layout.addWidget(self.visualizer, 3)

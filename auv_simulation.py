@@ -86,6 +86,8 @@ class AUVSimulation:
         print("Shift+1-4: 舵板向下")
         print("\n鼠标操作：")
         print("拖动: 旋转视角    滚轮: 缩放视角")
+        print("\n视角控制：")
+        print("R键: 复位视角到初始位置")
         
         # 运行应用程序主循环
         sys.exit(self.app.exec_())

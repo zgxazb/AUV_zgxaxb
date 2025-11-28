@@ -121,9 +121,9 @@ class AUVController:
             # 转向控制（偏航）
             turn_angle = 0.0
             if self.key_state['turn_left']:
-                turn_angle += self.auv_model.rudder_max_angle * 0.8
+                turn_angle -= self.auv_model.rudder_max_angle * 0.8  # 左转向：上垂直舵向左偏，下垂直舵向右偏
             elif self.key_state['turn_right']:
-                turn_angle -= self.auv_model.rudder_max_angle * 0.8
+                turn_angle += self.auv_model.rudder_max_angle * 0.8  # 右转向：上垂直舵向右偏，下垂直舵向左偏
             
             # 俯仰控制
             pitch_angle = 0.0
@@ -140,12 +140,14 @@ class AUVController:
                 roll_angle -= self.auv_model.rudder_max_angle * 0.6
             
             # 设置舵角
-            # 右上和右下舵控制俯仰和转向
-            # 左上和左下舵控制横滚
-            self.rudder_angles[0] = pitch_angle + turn_angle  # 右上舵
-            self.rudder_angles[1] = pitch_angle - turn_angle  # 右下舵
-            self.rudder_angles[2] = roll_angle                # 左上舵
-            self.rudder_angles[3] = -roll_angle               # 左下舵
+            # 垂直舵（舵板0和2）控制转向
+            # 水平舵（舵板1和3）控制俯仰
+            # 左转向：上垂直舵向左偏，下垂直舵向右偏
+            # 右转向：上垂直舵向右偏，下垂直舵向左偏
+            self.rudder_angles[0] = turn_angle                # 上垂直舵 - 控制转向
+            self.rudder_angles[1] = pitch_angle               # 右水平舵 - 控制俯仰
+            self.rudder_angles[2] = -turn_angle               # 下垂直舵 - 控制转向
+            self.rudder_angles[3] = pitch_angle               # 左水平舵 - 控制俯仰
         
         # 限制舵角范围
         for i in range(4):
