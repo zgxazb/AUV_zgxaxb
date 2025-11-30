@@ -1,7 +1,8 @@
 import sys
 import numpy as np
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QOpenGLWidget, QVBoxLayout, 
-                           QHBoxLayout, QWidget, QLabel, QFrame, QGridLayout, QPushButton)
+                           QHBoxLayout, QWidget, QLabel, QFrame, QGridLayout, QPushButton, 
+                           QGroupBox, QCheckBox)
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QColor, QFont
 
@@ -922,6 +923,31 @@ class AUVMainWindow(QMainWindow):
         self.reset_view_button.clicked.connect(self.visualizer.reset_view)
         control_layout.addWidget(self.reset_view_button)
         
+        # 添加分隔线
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShadow(QFrame.Sunken)
+        control_layout.addWidget(separator)
+        
+        # 添加环境控制选项
+        env_group = QGroupBox("环境设置")
+        env_layout = QVBoxLayout()
+        
+        # 水流控制复选框
+        self.current_checkbox = QCheckBox("启用水流")
+        self.current_checkbox.setChecked(False)  # 默认禁用
+        self.current_checkbox.stateChanged.connect(self.toggle_current)
+        env_layout.addWidget(self.current_checkbox)
+        
+        # 波浪控制复选框
+        self.waves_checkbox = QCheckBox("启用波浪")
+        self.waves_checkbox.setChecked(False)  # 默认禁用
+        self.waves_checkbox.stateChanged.connect(self.toggle_waves)
+        env_layout.addWidget(self.waves_checkbox)
+        
+        env_group.setLayout(env_layout)
+        control_layout.addWidget(env_group)
+        
         # 添加到布局
         main_layout.addWidget(self.visualizer, 3)
         main_layout.addWidget(control_panel, 1)
@@ -948,6 +974,20 @@ class AUVMainWindow(QMainWindow):
     def set_auv_controller(self, controller):
         """设置AUV控制器"""
         self.visualizer.set_auv_controller(controller)
+    
+    def toggle_current(self, state):
+        """切换水流控制"""
+        if self.simulation and self.simulation.auv_model:
+            # 设置水流状态
+            use_current = state == Qt.Checked
+            self.simulation.auv_model.set_environment(use_current=use_current)
+    
+    def toggle_waves(self, state):
+        """切换波浪控制"""
+        if self.simulation and self.simulation.auv_model:
+            # 设置波浪状态
+            use_waves = state == Qt.Checked
+            self.simulation.auv_model.set_environment(use_waves=use_waves)
 
 # 检查依赖库是否安装
 def check_dependencies():
