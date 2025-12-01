@@ -41,6 +41,14 @@ class AUVSimulation:
         
         # 创建AUV物理模型
         self.auv_model = AUVModel()
+        # 设置AUV初始状态为静止漂浮
+        print("设置AUV为静止漂浮状态...")
+        # 将AUV放置在水下1米处
+        initial_position = [0.0, 0.0, -1.0]  # x, y, z坐标，z=-1.0表示在水面下1米
+        self.auv_model.set_position(initial_position)
+        # 设置初始速度为零（完全静止）
+        initial_velocity = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]  # 线速度和角速度都为零
+        self.auv_model.set_velocity(initial_velocity)
         print("AUV物理模型初始化完成")
         
         # 创建控制器

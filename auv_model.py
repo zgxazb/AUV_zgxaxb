@@ -18,11 +18,15 @@ class AUVModel:
         self.length = 2.0  # 长度 (m)
         self.width = 0.5   # 宽度 (m)
         self.height = 0.5  # 高度 (m)
-        self.mass = 200.0  # 质量 (kg)
-        self.volume = self.length * self.width * self.height  # 体积 (m^3)
+        # 设置满排水量为205Kg
+        self.displacement = 205.0  # 满排水量 (kg)
+        self.water_density = 1000.0  # 水的密度 (kg/m³)
+        # 根据排水量计算体积: 体积 = 排水量 / 水密度
+        self.volume = self.displacement / self.water_density  # 体积 (m^3)
+        # 设置AUV质量略小于排水量以提供适当浮力
+        self.mass = 204.0  # 质量 (kg)
         
         # 水的物理特性
-        self.water_density = 1000.0  # 水的密度 (kg/m³)
         self.water_kinematic_viscosity = 1.004e-6  # 水的运动粘度 (m²/s)
         
         # 计算浮力
@@ -92,28 +96,28 @@ class AUVModel:
         self.added_mass_matrix[4, 2] = M_wdot
         
         # 3. 流体阻尼矩阵（线性和非线性）
-        # 线性阻尼系数 - 大幅增强以防止位置漂移
+        # 线性阻尼系数 - 减小阻尼到原来的20%（减少8成）以提高运动响应性
         self.linear_damping = np.array([
-            [-500.0, 0.0, 0.0, 0.0, 0.0, 0.0],   # X_u - 增强5倍
-            [0.0, -600.0, 0.0, 0.0, 0.0, 0.0],   # Y_v - 增强3倍
-            [0.0, 0.0, -400.0, 0.0, 0.0, 0.0],   # Z_w - 增强
-            [0.0, 0.0, 0.0, -50.0, 0.0, 0.0],    # K_p - 增强5倍
-            [0.0, 0.0, 0.0, 0.0, -80.0, 0.0],    # M_q - 增强
-            [0.0, 0.0, 0.0, 0.0, 0.0, -100.0]     # N_r - 增强
+            [-20.0, 0.0, 0.0, 0.0, 0.0, 0.0],   # X_u - 减小为原来的20%
+            [0.0, -30.0, 0.0, 0.0, 0.0, 0.0],   # Y_v - 减小为原来的20%
+            [0.0, 0.0, -20.0, 0.0, 0.0, 0.0],   # Z_w - 减小为原来的20%
+            [0.0, 0.0, 0.0, -2.0, 0.0, 0.0],    # K_p - 减小为原来的20%
+            [0.0, 0.0, 0.0, 0.0, -3.2, 0.0],    # M_q - 减小为原来的20%
+            [0.0, 0.0, 0.0, 0.0, 0.0, -4.0]     # N_r - 减小为原来的20%
         ])
         
-        # 非线性阻尼系数（平方项）- 大幅增强以提供更强的高速衰减效果
+        # 非线性阻尼系数（平方项）- 减小阻尼到原来的20%（减少8成）以提高高速运动性能
         self.nonlinear_damping = np.array([
-            [-200.0, 0.0, 0.0, 0.0, 0.0, 0.0],    # X_uu - 增强4倍
-            [0.0, -300.0, 0.0, 0.0, 0.0, 0.0],   # Y_vv - 增强3倍
-            [0.0, 0.0, -250.0, 0.0, 0.0, 0.0],   # Z_ww - 增强
-            [0.0, 0.0, 0.0, -25.0, 0.0, 0.0],     # K_pp - 增强5倍
-            [0.0, 0.0, 0.0, 0.0, -40.0, 0.0],     # M_qq - 增强
-            [0.0, 0.0, 0.0, 0.0, 0.0, -50.0]     # N_rr - 增强
+            [-10.0, 0.0, 0.0, 0.0, 0.0, 0.0],     # X_uu - 减小为原来的20%
+            [0.0, -15.0, 0.0, 0.0, 0.0, 0.0],    # Y_vv - 减小为原来的20%
+            [0.0, 0.0, -12.5, 0.0, 0.0, 0.0],    # Z_ww - 减小为原来的20%
+            [0.0, 0.0, 0.0, -1.0, 0.0, 0.0],      # K_pp - 减小为原来的20%
+            [0.0, 0.0, 0.0, 0.0, -1.6, 0.0],      # M_qq - 减小为原来的20%
+            [0.0, 0.0, 0.0, 0.0, 0.0, -2.0]      # N_rr - 减小为原来的20%
         ])
         
         # 4. 推进器参数
-        self.propeller_max_thrust = 50.0  # 最大推力 (N)
+        self.propeller_max_thrust = 200.0  # 最大推力 (N)
         self.propeller_position = np.array([-self.length/2, 0.0, 0.0])  # 推进器位置 (m)
         self.propeller_efficiency = 0.85  # 推进器效率
         
@@ -186,7 +190,7 @@ class AUVModel:
         self.update_state(dt)
         
     def update_state(self, dt):
-        """使用完整的流体动力学模型更新AUV状态"""
+        """使用简化的流体动力学模型更新AUV状态"""
         # 更新模拟时间
         self.simulation_time += dt
         
@@ -200,63 +204,53 @@ class AUVModel:
         propeller_thrust = self.control_input[0]
         rudder_angles = self.control_input[1:5]
         
-        # 1. 计算总质量矩阵 (刚体质量 + 附加质量)
-        # 刚体质量矩阵
+        # 使用简化的物理模型
+        # 1. 只使用刚体质量矩阵，忽略附加质量
         rigid_body_mass = np.zeros((6, 6))
         rigid_body_mass[0:3, 0:3] = np.eye(3) * self.mass
         rigid_body_mass[3:6, 3:6] = self.inertia_matrix
+        M = rigid_body_mass
         
-        # 总质量矩阵
-        M = rigid_body_mass + self.added_mass_matrix
-        
-        # 2. 计算科里奥利和离心力矩阵 C
-        C = self._calculate_coriolis_matrix(u, v, w, p, q, r)
-        
-        # 3. 计算流体阻尼力 D
+        # 2. 简化的阻尼力计算
         damping_forces = self._calculate_damping_forces(u, v, w, p, q, r)
         
-        # 4. 计算重力和浮力 G
+        # 3. 计算重力和浮力
         gravity_buoyancy_forces = self._calculate_gravity_buoyancy_forces(q0, q1, q2, q3)
         
-        # 5. 计算控制输入产生的力和力矩
+        # 4. 计算控制输入产生的力和力矩
         control_forces, control_torques = self._calculate_control_forces(propeller_thrust, rudder_angles, u, v, w, p, q, r)
         
-        # 6. 计算环境干扰力（水流和波浪）
-        environmental_forces = self._calculate_environmental_forces(u, v, w, p, q, r)
+        # 5. 环境干扰力（已禁用）
+        environmental_forces = np.zeros(6)
         
-        # 7. 组装总力向量
+        # 6. 组装总力向量（忽略科里奥利力，使用更简单的模型）
         total_forces = np.concatenate([control_forces, control_torques])
         total_forces += damping_forces
         total_forces += gravity_buoyancy_forces
         total_forces += environmental_forces
         
-        # 8. 求解加速度：M * nu_dot = total_forces - C * nu
-        nu = np.array([u, v, w, p, q, r])  # 速度向量
-        # 增加数值稳定性检查
+        # 7. 简单的加速度计算：a = F/m
+        nu_dot = np.zeros(6)
         try:
-            # 限制速度向量大小，防止过大
-            nu_clipped = np.clip(nu, -10.0, 10.0)
-            
-            # 计算力向量
-            force_vector = total_forces - C @ nu_clipped
             # 限制力向量大小
-            force_vector = np.clip(force_vector, -1e6, 1e6)
+            total_forces = np.clip(total_forces, -1e4, 1e4)
             
-            # 检查质量矩阵的有效性
-            if np.any(np.isnan(M)) or np.any(np.isinf(M)):
-                print("警告: 质量矩阵包含无效值，使用单位矩阵替代")
-                M = np.eye(6)
+            # 计算加速度（简单的力除以质量）
+            for i in range(3):  # 线加速度
+                nu_dot[i] = total_forces[i] / self.mass
             
-            # 检查矩阵是否奇异
-            if np.linalg.cond(M) > 1e10:
-                # 添加小的正则化项
-                M = M + np.eye(6) * 1e-6
+            # 角加速度需要考虑惯性矩
+            if self.Ixx != 0:
+                nu_dot[3] = total_forces[3] / self.Ixx
+            if self.Iyy != 0:
+                nu_dot[4] = total_forces[4] / self.Iyy
+            if self.Izz != 0:
+                nu_dot[5] = total_forces[5] / self.Izz
             
-            nu_dot = np.linalg.solve(M, force_vector)
             # 限制加速度大小
             nu_dot = np.clip(nu_dot, -5.0, 5.0)
-        except np.linalg.LinAlgError:
-            print("警告: 线性代数求解失败，使用零加速度")
+        except Exception as e:
+            print(f"警告: 加速度计算失败: {e}")
             nu_dot = np.zeros(6)
         
         # 9. 更新速度 - 使用半隐式欧拉方法提高数值稳定性
@@ -399,171 +393,151 @@ class AUVModel:
         return C
     
     def _calculate_damping_forces(self, u, v, w, p, q, r):
-        """计算流体阻尼力（线性和非线性），增加数值稳定性"""
-        # 速度向量，并限制其大小以防止溢出
-        max_velocity = 100.0  # 设置合理的最大速度限制
-        u = np.clip(u, -max_velocity, max_velocity)
-        v = np.clip(v, -max_velocity, max_velocity)
-        w = np.clip(w, -max_velocity, max_velocity)
-        p = np.clip(p, -max_velocity, max_velocity)
-        q = np.clip(q, -max_velocity, max_velocity)
-        r = np.clip(r, -max_velocity, max_velocity)
+        """简化的流体阻尼力计算，仅使用线性阻尼参数"""
+        # 使用简单的线性阻尼，与速度成正比
+        damping_forces = np.zeros(6)
         
-        nu = np.array([u, v, w, p, q, r])
+        # 线性阻尼系数 (简化版本) - 减小阻尼值到原来的20%（减少8成）
+        damping_coeff = np.array([
+            -20.0,  # X方向阻尼 - 减小为原来的20%
+            -30.0,  # Y方向阻尼 - 减小为原来的20%
+            -20.0,  # Z方向阻尼 - 减小为原来的20%
+            -2.0,   # 横滚阻尼 - 减小为原来的20%
+            -3.2,   # 俯仰阻尼 - 减小为原来的20%
+            -4.0    # 偏航阻尼 - 减小为原来的20%
+        ])
         
-        # 线性阻尼力
-        linear_damping_forces = self.linear_damping @ nu
+        # 计算简单的线性阻尼力
+        damping_forces[0] = damping_coeff[0] * u
+        damping_forces[1] = damping_coeff[1] * v
+        damping_forces[2] = damping_coeff[2] * w
+        damping_forces[3] = damping_coeff[3] * p
+        damping_forces[4] = damping_coeff[4] * q
+        damping_forces[5] = damping_coeff[5] * r
         
-        # 非线性阻尼力（平方项）
-        nonlinear_damping_forces = np.zeros(6)
-        max_damping_force = 1e6  # 设置合理的最大阻尼力
-        
-        for i in range(6):
-            # 逐步计算防止中间结果溢出
-            vel_abs = abs(nu[i])
-            # 限制速度平方
-            vel_sq = min(vel_abs * abs(nu[i]), 1e4)  # 最大速度平方
-            
-            # 计算阻尼力并限制
-            damping_force = self.nonlinear_damping[i, i] * vel_sq * np.sign(nu[i])
-            nonlinear_damping_forces[i] = np.clip(damping_force, -max_damping_force, max_damping_force)
-        
-        # 总阻尼力并限制
-        total_damping = linear_damping_forces + nonlinear_damping_forces
-        total_damping = np.clip(total_damping, -max_damping_force*2, max_damping_force*2)
-        
-        # 当没有控制输入时，增加额外的阻尼来防止漂移
-        # 检查是否有控制输入（推进器推力或舵机角度）
+        # 当没有控制输入时，轻微增加阻尼来防止漂移，但保持较小值
         if hasattr(self, 'control_input') and np.linalg.norm(self.control_input) < 1e-6:
-            # 对所有速度分量增加强阻尼
-            # 线性阻尼增强系数
-            damping_boost_factor = 2.0  # 增强线性阻尼
-            
-            # 为每个速度分量添加额外的阻尼力
+            # 对所有速度分量轻微增加阻尼
             for i in range(6):
-                # 额外的线性阻尼力，与速度成正比
-                extra_damping = -self.linear_damping[i, i] * damping_boost_factor * nu[i]
-                total_damping[i] += extra_damping
-                
-                # 对于小速度，使用更强的阻尼
-                if abs(nu[i]) < 1e-3:
-                    total_damping[i] -= nu[i] * 1000.0  # 超小速度时的强阻尼
+                damping_forces[i] *= 1.2  # 轻微增加阻尼，而不是原来的2倍
         
-        # 再次限制阻尼力大小
-        total_damping = np.clip(total_damping, -max_damping_force*3, max_damping_force*3)
-        
-        return total_damping
+        return damping_forces
     
     def _calculate_gravity_buoyancy_forces(self, q0, q1, q2, q3):
-        """计算重力和浮力"""
-        # 计算重力向量和浮力向量
+        """计算重力和浮力 - 增强版本，考虑深度、姿态等因素对浮力的影响"""
+        # 获取当前深度 (z坐标为负表示下潜)
+        depth = -self.state[2]  # 假设z=0为水面
+        
+        # 1. 计算重力向量 (恒定)
         gravity = np.array([0, 0, -self.mass * 9.81])  # 重力 (N)
-        buoyancy = np.array([0, 0, self.buoyancy])    # 浮力 (N)
+        
+        # 2. 增强的浮力计算
+        # 基础浮力
+        base_buoyancy = self.water_density * 9.81 * self.volume
+        
+        # 深度影响：水压增加导致水密度略微增加（每1000米增加约1%）
+        depth_pressure_factor = 1.0 + (depth * 0.00001)  # 轻微的深度依赖性
+        
+        # 姿态影响：当AUV倾斜时，浮力的有效体积略微变化
+        # 计算AUV的俯仰角和横滚角来评估姿态影响
+        pitch = np.arcsin(2.0 * (q0*q2 - q1*q3))  # 从四元数计算俯仰角
+        roll = np.arcsin(2.0 * (q0*q1 + q2*q3))   # 从四元数计算横滚角
+        
+        # 姿态因子：当姿态倾斜时，略微调整浮力（模拟流体动力学效应）
+        attitude_factor = 1.0 - 0.02 * (abs(pitch) + abs(roll))  # 最多减少4%的浮力
+        attitude_factor = max(0.96, attitude_factor)  # 限制最小因子
+        
+        # 计算最终浮力
+        dynamic_buoyancy = base_buoyancy * depth_pressure_factor * attitude_factor
+        
+        # 浮力向量始终向上（z轴正方向）
+        buoyancy = np.array([0, 0, dynamic_buoyancy])  # 浮力 (N)
+        
+        # 3. 浮心位置动态调整：随姿态略微变化
+        # 当AUV倾斜时，浮心位置会有微小变化（简化模型）
+        dynamic_center_of_buoyancy = self.center_of_buoyancy.copy()
+        # 姿态引起的浮心偏移（非常小的量）
+        shift_magnitude = 0.01  # 最大偏移量 (m)
+        dynamic_center_of_buoyancy[0] += shift_magnitude * np.sin(pitch)
+        dynamic_center_of_buoyancy[1] += shift_magnitude * np.sin(roll)
         
         # 计算浮心相对于重心的位置
-        b_g = self.center_of_buoyancy - self.center_of_mass
+        b_g = dynamic_center_of_buoyancy - self.center_of_mass
         
-        # 转换到体坐标系
+        # 4. 转换到体坐标系
         rotation_matrix = self._quaternion_to_rotation_matrix(q0, q1, q2, q3)
         gravity_body = rotation_matrix.T @ gravity
         buoyancy_body = rotation_matrix.T @ buoyancy
         
-        # 计算力和力矩
+        # 5. 计算力和力矩
         forces = gravity_body + buoyancy_body
-        moments = np.cross(b_g, buoyancy_body)  # 只有浮力产生力矩（因为重心是力矩参考点）
+        moments = np.cross(b_g, buoyancy_body)  # 浮力产生的力矩
+        
+        # 6. 添加静稳定性增强：当AUV倾斜时增加恢复力矩
+        # 这模拟了真实AUV的稳定性设计
+        stability_gain = 50.0  # 稳定性增益系数
+        stability_moment = np.array([
+            -stability_gain * roll,      # 横滚恢复力矩
+            -stability_gain * pitch,     # 俯仰恢复力矩
+            0.0                          # 偏航不受稳定性影响
+        ])
+        
+        # 将稳定性力矩添加到总力矩中
+        moments += stability_moment
         
         return np.concatenate([forces, moments])
     
     def _calculate_control_forces(self, thrust, rudder_angles, u, v, w, p, q, r):
-        """计算控制输入产生的力和力矩"""
+        """计算控制输入产生的力和力矩 - 简化版本，舵力直接基于舵角和速度"""
         # 1. 计算推进器产生的力和力矩
-        # 推进力沿x轴正方向
+        # 推力方向直接与推进器输入方向一致，不再与当前速度方向绑定
+        # 正推力表示向前推，负推力表示向后推
         thrust_force = np.array([thrust, 0.0, 0.0]) * self.propeller_efficiency
         # 推进力矩（如果推进器不在中心线上，会产生力矩）
         thrust_torque = np.cross(self.propeller_position, thrust_force)
         
-        # 2. 计算舵机产生的力和力矩
+        # 2. 计算舵机产生的力和力矩 - 简化版本
         rudder_forces = np.zeros(3)
         rudder_torques = np.zeros(3)
         
-        # 当前速度向量
-        velocity_vector = np.array([u, v, w])
-        angular_velocity = np.array([p, q, r])
+        # 前进速度大小（用于计算舵力）
+        forward_speed = abs(u)
         
+        # 舵力系数（根据舵角和速度调整）
+        # 系数越大，舵效越强
+        rudder_force_coefficient = 100.0
+        
+        # 分别计算每个舵的力和力矩
         for i in range(self.rudder_count):
             angle = rudder_angles[i]
             
-            # 计算舵机处的相对水流速度
-            # 考虑AUV运动和角速度
-            rudder_velocity = velocity_vector + np.cross(angular_velocity, self.rudder_positions[i])
+            # 基于舵角和前进速度直接计算舵力
+            # 力的大小与舵角和前进速度成正比
+            rudder_force_magnitude = rudder_force_coefficient * angle * forward_speed
             
-            # 计算相对流速的大小
-            relative_velocity_magnitude = np.linalg.norm(rudder_velocity)
+            # 限制舵力大小
+            max_force = 50.0
+            rudder_force_magnitude = np.clip(rudder_force_magnitude, -max_force, max_force)
             
-            # 计算升力和阻力系数
-            # 使用线性近似，考虑攻角效应
-            lift_coefficient = self.rudder_lift_coefficient * angle
-            drag_coefficient = self.rudder_drag_coefficient + 0.5 * angle**2  # 随角度增加的阻力
-            
-            # 计算升力和阻力，增加数值稳定性
-            # 限制速度平方
-            max_velocity_sq = 100.0  # 最大速度平方
-            velocity_sq = min(relative_velocity_magnitude**2, max_velocity_sq)
-            
-            # 计算升力
-            lift = 0.5 * self.water_density * self.rudder_area * velocity_sq * lift_coefficient
-            # 限制升力大小
-            max_lift = 1e4
-            lift = np.clip(lift, -max_lift, max_lift)
-            
-            # 计算阻力
-            drag = 0.5 * self.water_density * self.rudder_area * velocity_sq * drag_coefficient
-            # 限制阻力大小并确保为正
-            max_drag = 1e4
-            drag = min(abs(drag), max_drag)
-            
-            # 确定力的方向
-            if relative_velocity_magnitude > 1e-6:  # 避免除以零
-                # 单位速度向量
-                velocity_unit = rudder_velocity / relative_velocity_magnitude
-                
-                # 根据舵机类型确定法向量
-                if i == 0 or i == 2:  # 垂直舵（上舵和下舵）
-                    # 垂直舵主要影响偏航
-                    normal_vector = np.array([0, -np.sin(angle), np.cos(angle)])
-                else:  # 水平舵（左舵和右舵）
-                    # 水平舵主要影响俯仰
-                    normal_vector = np.array([0, np.cos(angle), np.sin(angle)])
-                
-                # 确保法向量与速度向量垂直
-                normal_vector = normal_vector - np.dot(normal_vector, velocity_unit) * velocity_unit
-                normal_vector_norm = np.linalg.norm(normal_vector)
-                if normal_vector_norm > 1e-6:
-                    normal_vector = normal_vector / normal_vector_norm
-                else:
-                    normal_vector = np.array([0, 0, 1])
-                
-                # 升力方向：垂直于速度和法向量
-                lift_direction = np.cross(velocity_unit, np.cross(normal_vector, velocity_unit))
-                lift_direction_norm = np.linalg.norm(lift_direction)
-                if lift_direction_norm > 1e-6:
-                    lift_direction = lift_direction / lift_direction_norm
-                else:
-                    lift_direction = np.array([0, 0, 1])
-                
-                # 计算力向量
-                lift_force = lift * lift_direction
-                drag_force = drag * velocity_unit
-                
-                # 总舵机力
-                total_rudder_force = lift_force + drag_force
-            else:
-                total_rudder_force = np.zeros(3)
+            # 根据舵的类型确定力的方向
+            # 简化的力方向模型
+            if i == 0 or i == 2:  # 垂直舵（上舵和下舵）
+                # 垂直舵产生垂直方向的力，影响偏航
+                if i == 0:  # 上舵
+                    rudder_force = np.array([0.0, 0.0, rudder_force_magnitude])
+                else:  # 下舵
+                    rudder_force = np.array([0.0, 0.0, -rudder_force_magnitude])
+            else:  # 水平舵（左舵和右舵）
+                # 水平舵产生水平方向的力，影响俯仰
+                if i == 1:  # 右舵
+                    rudder_force = np.array([0.0, rudder_force_magnitude, 0.0])
+                else:  # 左舵
+                    rudder_force = np.array([0.0, -rudder_force_magnitude, 0.0])
             
             # 计算力矩（相对于质心）
-            torque = np.cross(self.rudder_positions[i], total_rudder_force)
+            torque = np.cross(self.rudder_positions[i], rudder_force)
             
-            rudder_forces += total_rudder_force
+            rudder_forces += rudder_force
             rudder_torques += torque
         
         # 总控制力和力矩

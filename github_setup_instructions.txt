@@ -1,0 +1,19 @@
+# 如何在GitHub上创建远程仓库
+
+## 创建步骤
+1. 登录您的GitHub账号
+2. 点击右上角的'+'号图标，选择'New repository'
+3. 填写仓库名称（建议使用：auv_control_system）
+4. 可以选择设为公开或私有仓库
+5. **重要：不要勾选'Initialize this repository with a README'选项**，因为我们已经有本地代码
+6. 不要添加.gitignore或LICENSE文件，因为我们已经创建了.gitignore
+7. 点击'Create repository'按钮创建仓库
+
+## 下一步
+创建完成后，GitHub会显示仓库页面，其中包含远程仓库的URL。请将这个URL提供给我，以便我帮您关联本地仓库并推送代码。
+
+远程仓库URL通常类似于：
+- HTTPS格式：https://github.com/您的用户名/auv_control_system.git
+- SSH格式：git@github.com:您的用户名/auv_control_system.git
+
+两种格式都可以使用，您可以根据自己的偏好选择。

@@ -239,14 +239,23 @@ class AUVVisualizer(QOpenGLWidget):
         glEnd()
     
     def draw_water_surface(self):
-        # 绘制水面
-        glColor3f(0.0, 0.5, 0.8)  # 蓝色水面
+        # 绘制水面 - 半透明效果
+        # 启用混合功能以实现半透明
+        GL.glEnable(GL.GL_BLEND)
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+        
+        # 使用glColor4f设置颜色和透明度(0.3表示30%不透明度)
+        GL.glColor4f(0.0, 0.5, 0.8, 0.3)  # 半透明蓝色水面
+        
         glBegin(GL_QUADS)
         glVertex3f(-20.0, -20.0, 0.0)
         glVertex3f(20.0, -20.0, 0.0)
         glVertex3f(20.0, 20.0, 0.0)
         glVertex3f(-20.0, 20.0, 0.0)
         glEnd()
+        
+        # 关闭混合功能，避免影响其他渲染
+        GL.glDisable(GL.GL_BLEND)
     
     def draw_axes(self):
         """绘制带有箭头的三维坐标系"""
