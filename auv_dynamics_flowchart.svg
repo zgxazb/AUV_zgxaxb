@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="1000" height="900" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+  <!-- 背景和标题 -->
+  <rect width="1000" height="900" fill="#f9f9f9"/>
+  <text x="500" y="40" font-size="24" font-weight="bold" text-anchor="middle" fill="#333">AUV动力学与流体力学程序流程图</text>
+  <text x="500" y="70" font-size="14" text-anchor="middle" fill="#666">单推进器四舵机AUV控制系统</text>
+  
+  <!-- 开始节点 -->
+  <circle cx="100" cy="120" r="30" fill="#e6f7ff" stroke="#1890ff" stroke-width="2"/>
+  <text x="100" y="125" font-size="14" font-weight="bold" text-anchor="middle" fill="#1890ff">开始仿真</text>
+  
+  <!-- 初始化节点 -->
+  <rect x="30" y="180" width="140" height="60" rx="5" fill="#fff2e8" stroke="#fa8c16" stroke-width="2"/>
+  <text x="100" y="215" font-size="14" font-weight="bold" text-anchor="middle" fill="#fa8c16">初始化AUV模型</text>
+  <line x1="100" y1="150" x2="100" y2="180" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 控制器初始化 -->
+  <rect x="220" y="180" width="140" height="60" rx="5" fill="#f6ffed" stroke="#52c41a" stroke-width="2"/>
+  <text x="290" y="215" font-size="14" font-weight="bold" text-anchor="middle" fill="#52c41a">初始化控制器</text>
+  <line x1="170" y1="210" x2="220" y2="210" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 仿真循环开始 -->
+  <rect x="420" y="180" width="140" height="60" rx="5" fill="#f0f5ff" stroke="#2f54eb" stroke-width="2"/>
+  <text x="490" y="215" font-size="14" font-weight="bold" text-anchor="middle" fill="#2f54eb">进入仿真循环</text>
+  <line x1="360" y1="210" x2="420" y2="210" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 控制输入计算 -->
+  <rect x="620" y="180" width="160" height="60" rx="5" fill="#fff0f6" stroke="#eb2f96" stroke-width="2"/>
+  <text x="700" y="215" font-size="14" font-weight="bold" text-anchor="middle" fill="#eb2f96">计算控制输入</text>
+  <line x1="560" y1="210" x2="620" y2="210" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 子流程：键盘输入处理 -->
+  <rect x="640" y="260" width="120" height="50" rx="5" fill="#ffe6e6" stroke="#ff4d4f" stroke-width="2"/>
+  <text x="700" y="290" font-size="12" text-anchor="middle" fill="#ff4d4f">键盘输入处理</text>
+  <line x1="700" y1="240" x2="700" y2="260" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 子流程：PID控制器 -->
+  <rect x="780" y="260" width="120" height="50" rx="5" fill="#ffe6e6" stroke="#ff4d4f" stroke-width="2"/>
+  <text x="840" y="290" font-size="12" text-anchor="middle" fill="#ff4d4f">PID控制计算</text>
+  <line x1="800" y="290" x2="780" y="290" stroke="#666" stroke-width="2"/>
+  
+  <!-- 推进器和舵角设置 -->
+  <rect x="700" y="330" width="160" height="60" rx="5" fill="#fff2e8" stroke="#fa8c16" stroke-width="2"/>
+  <text x="780" y="345" font-size="12" text-anchor="middle" fill="#fa8c16">设置推进器推力</text>
+  <text x="780" y="370" font-size="12" text-anchor="middle" fill="#fa8c16">设置舵机角度</text>
+  <line x1="760" y="310" x2="760" y="330" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 应用控制输入到模型 -->
+  <rect x="450" y="300" width="200" height="60" rx="5" fill="#f6ffed" stroke="#52c41a" stroke-width="2"/>
+  <text x="550" y="335" font-size="14" font-weight="bold" text-anchor="middle" fill="#52c41a">应用控制输入到模型</text>
+  <line x1="620" y="360" x2="550" y="360" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="550" y="240" x2="550" y="300" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 流体动力学计算 -->
+  <rect x="450" y="380" width="200" height="80" rx="5" fill="#e6f7ff" stroke="#1890ff" stroke-width="2"/>
+  <text x="550" y="425" font-size="14" font-weight="bold" text-anchor="middle" fill="#1890ff">流体动力学计算</text>
+  <text x="550" y="450" font-size="12" text-anchor="middle" fill="#1890ff">计算线性阻力和角阻力</text>
+  <line x1="550" y="360" x2="550" y="380" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 总力和力矩计算 -->
+  <rect x="450" y="480" width="200" height="100" rx="5" fill="#f0f5ff" stroke="#2f54eb" stroke-width="2"/>
+  <text x="550" y="505" font-size="14" font-weight="bold" text-anchor="middle" fill="#2f54eb">总力和力矩计算</text>
+  <text x="550" y="530" font-size="12" text-anchor="middle" fill="#2f54eb">推进器推力</text>
+  <text x="550" y="555" font-size="12" text-anchor="middle" fill="#2f54eb">舵机控制力</text>
+  <text x="550" y="580" font-size="12" text-anchor="middle" fill="#2f54eb">流体阻力</text>
+  <line x1="550" y="560" x2="550" y="480" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 加速度计算 -->
+  <rect x="200" y="300" width="200" height="60" rx="5" fill="#fafafa" stroke="#8c8c8c" stroke-width="2"/>
+  <text x="300" y="335" font-size="14" font-weight="bold" text-anchor="middle" fill="#8c8c8c">加速度计算</text>
+  <text x="300" y="355" font-size="12" text-anchor="middle" fill="#8c8c8c">F = ma, τ = Iα</text>
+  <line x1="450" y="580" x2="300" y="580" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="300" y="580" x2="300" y="360" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 速度更新 -->
+  <rect x="200" y="380" width="200" height="60" rx="5" fill="#fafafa" stroke="#8c8c8c" stroke-width="2"/>
+  <text x="300" y="415" font-size="14" font-weight="bold" text-anchor="middle" fill="#8c8c8c">速度更新</text>
+  <text x="300" y="435" font-size="12" text-anchor="middle" fill="#8c8c8c">v = v + a·dt</text>
+  <line x1="300" y="360" x2="300" y="380" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 位置和姿态更新 -->
+  <rect x="200" y="460" width="200" height="80" rx="5" fill="#fafafa" stroke="#8c8c8c" stroke-width="2"/>
+  <text x="300" y="505" font-size="14" font-weight="bold" text-anchor="middle" fill="#8c8c8c">位置和姿态更新</text>
+  <text x="300" y="530" font-size="12" text-anchor="middle" fill="#8c8c8c">位置: x = x + v·dt</text>
+  <text x="300" y="555" font-size="12" text-anchor="middle" fill="#8c8c8c">姿态: θ = θ + ω·dt</text>
+  <line x1="300" y="440" x2="300" y="460" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 坐标系转换 -->
+  <rect x="50" y="460" width="120" height="60" rx="5" fill="#ffe6e6" stroke="#ff4d4f" stroke-width="2"/>
+  <text x="110" y="490" font-size="12" text-anchor="middle" fill="#ff4d4f">坐标系转换</text>
+  <text x="110" y="510" font-size="10" text-anchor="middle" fill="#ff4d4f">旋转矩阵</text>
+  <line x1="200" y="490" x2="170" y="490" stroke="#666" stroke-width="2"/>
+  
+  <!-- 更新状态向量 -->
+  <rect x="200" y="560" width="200" height="60" rx="5" fill="#fafafa" stroke="#8c8c8c" stroke-width="2"/>
+  <text x="300" y="595" font-size="14" font-weight="bold" text-anchor="middle" fill="#8c8c8c">更新状态向量</text>
+  <line x1="300" y="540" x2="300" y="560" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 可视化更新 -->
+  <rect x="450" y="600" width="200" height="60" rx="5" fill="#fff1f0" stroke="#eb2f96" stroke-width="2"/>
+  <text x="550" y="635" font-size="14" font-weight="bold" text-anchor="middle" fill="#eb2f96">更新可视化界面</text>
+  <line x1="400" y="620" x2="450" y="620" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 循环判断 -->
+  <rect x="700" y="600" width="160" height="60" rx="5" fill="#f0f0f0" stroke="#000000" stroke-width="2"/>
+  <text x="780" y="620" font-size="12" text-anchor="middle" fill="#000000">仿真继续？</text>
+  <text x="780" y="645" font-size="12" text-anchor="middle" fill="#000000">Yes ↓ | No →</text>
+  <line x1="650" y="630" x2="700" y="630" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 结束节点 -->
+  <circle cx="900" cy="630" r="30" fill="#ffe6e6" stroke="#ff4d4f" stroke-width="2"/>
+  <text x="900" y="635" font-size="14" font-weight="bold" text-anchor="middle" fill="#ff4d4f">结束仿真</text>
+  <line x1="860" y="630" x2="885" y="630" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 返回循环 -->
+  <line x1="780" y="660" x2="780" y="700" stroke="#666" stroke-width="2"/>
+  <line x1="780" y="700" x2="490" y="700" stroke="#666" stroke-width="2"/>
+  <line x1="490" y="700" x2="490" y="240" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="635" y="715" font-size="12" text-anchor="middle" fill="#666">仿真循环</text>
+  
+  <!-- 箭头定义 -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+  
+  <!-- 流程图说明 -->
+  <rect x="20" y="750" width="960" height="120" rx="5" fill="#e6f7ff" stroke="#1890ff" stroke-width="2"/>
+  <text x="500" y="770" font-size="14" font-weight="bold" text-anchor="middle" fill="#1890ff">流程图说明</text>
+  <text x="200" y="795" font-size="12" fill="#333">1. 控制输入生成：通过键盘或PID控制器生成推进器和舵机控制信号</text>
+  <text x="200" y="820" font-size="12" fill="#333">2. 流体动力学：计算线性阻力和角阻力，体现水的粘性效应</text>
+  <text x="200" y="845" font-size="12" fill="#333">3. 力和力矩：综合推进器推力、舵机控制力和流体阻力</text>
+  <text x="200" y="870" font-size="12" fill="#333">4. 运动学：基于牛顿-欧拉方程更新AUV的位置、姿态、速度和加速度</text>
+  
+  <!-- 颜色图例 -->
+  <rect x="700" y="790" width="20" height="20" rx="3" fill="#1890ff"/>
+  <text x="730" y="805" font-size="12" fill="#333">流体动力学</text>
+  <rect x="700" y="820" width="20" height="20" rx="3" fill="#52c41a"/>
+  <text x="730" y="835" font-size="12" fill="#333">控制逻辑</text>
+  <rect x="700" y="850" width="20" height="20" rx="3" fill="#8c8c8c"/>
+  <text x="730" y="865" font-size="12" fill="#333">运动学计算</text>
+  <rect x="850" y="790" width="20" height="20" rx="3" fill="#fa8c16"/>
+  <text x="880" y="805" font-size="12" fill="#333">初始化</text>
+  <rect x="850" y="820" width="20" height="20" rx="3" fill="#2f54eb"/>
+  <text x="880" y="835" font-size="12" fill="#333">力/力矩计算</text>
+  <rect x="850" y="850" width="20" height="20" rx="3" fill="#eb2f96"/>
+  <text x="880" y="865" font-size="12" fill="#333">可视化</text>
+</svg>
